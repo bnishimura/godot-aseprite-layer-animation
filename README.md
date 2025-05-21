@@ -12,7 +12,7 @@ It was written quickly to get the job done. Ignore reimport_files errors, those 
 Pick one between dump_as_separate_nodes.gd (creates a .tscn for each aseprite layer) and dump_as_single_node.gd (creates a single .tscn where each aseprite layer is a child of a Node2D).
 1. Create a new scene
 2. Add a Node
-3. Attach main.gd to the Node
+3. Attach main.gd to the Node (might have to reload the project)
 4. Fill the "Sprite Path" field by clicking the icon next to it and finding an .aseprite or an .ase file
 5. Fill the "Aseprite Executable" field by locating the executable in your PC
 6. Fill the frame size

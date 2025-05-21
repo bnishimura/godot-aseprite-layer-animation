@@ -2,7 +2,7 @@
 extends Node
 
 
-@export_file("*.aseprite;*.ase") var sprite_path: String
+@export_file("*.aseprite;*.ase") var aseprite_file_path: String
 @export var aseprite_executable: String = 'aseprite'
 @export var frame_size: Vector2i = Vector2i(128, 128)
 
@@ -10,14 +10,15 @@ extends Node
 
 func process_aseprite_file(_flag):
 	
-	if !sprite_path:
+	if !aseprite_file_path:
 		push_error("ERROR: NO ASEPRITE FILE SELECTED")
 		return
 
-	var fpath = ProjectSettings.globalize_path(sprite_path)
+	var fpath = ProjectSettings.globalize_path(aseprite_file_path)
 	var out_splits = Array(fpath.split('/'))
 	# chop .aseprite
 	var MAIN_NAME : String = out_splits.pop_back().split('.')[0]
+	var stem : String = '/'.join(out_splits)
 
 # aseprite -b test.aseprite --layer "test_layer" --sheet test_layer.png --data test_layer.json
 	var sprite_fetch_args = PackedStringArray([
@@ -54,8 +55,6 @@ func process_aseprite_file(_flag):
 		sprite_fetch_args[LAYER_NAME_IDX] = layer_name
 		sprite_fetch_args[OUTFILE_IDX] = outpath + "/%s.png" % layer_name
 
-		print(' '.join(sprite_fetch_args))
-
 		cli_output = []
 		var _fail = OS.execute(
 			aseprite_executable,
@@ -75,20 +74,21 @@ func process_aseprite_file(_flag):
 		var animated_sprite := AnimatedSprite2D.new()
 		animated_sprite.sprite_frames = sprite_frames
 		animated_sprite.name = MAIN_NAME + '_' + layer_name
-		animated_sprite.texture_filter = TextureFilter.TEXTURE_FILTER_NEAREST
+		animated_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		root.add_child(animated_sprite)
 		animated_sprite.set_owner(root)
 
-	var ok = scn.pack(animated_sprite)
+	var ok = scn.pack(root)
 	if ok == OK:
-		ok = ResourceSaver.save(scn, outpath + '/%s_%s.tscn' % [MAIN_NAME, layer_name])
+		print(stem + '/%s.tscn' % MAIN_NAME)
+		ok = ResourceSaver.save(scn, stem + '/%s.tscn' % MAIN_NAME)
 		if ok != OK:
 			push_error("ERROR SAVING SCENE TO DISK")
 
 	return
 
 func get_layer_names() -> PackedStringArray:
-	var fpath = ProjectSettings.globalize_path(sprite_path)
+	var fpath = ProjectSettings.globalize_path(aseprite_file_path)
 	var layer_fetch_args = PackedStringArray([
 		"-b",
 		"-list-layers",
@@ -109,7 +109,7 @@ func get_layer_names() -> PackedStringArray:
 
 func dump_animation_data(outpath: String):
 
-	var fpath = ProjectSettings.globalize_path(sprite_path)
+	var fpath = ProjectSettings.globalize_path(aseprite_file_path)
 # aseprite -b test.aseprite --list-tags --frame-tag --all-layers --data "./outputs/test.json" --format json-hash
 	var animation_data_args = PackedStringArray([
 		"-b",
