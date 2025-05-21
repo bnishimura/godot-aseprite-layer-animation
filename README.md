@@ -9,7 +9,7 @@ It was written quickly to get the job done. Ignore reimport_files errors, those 
 
 ## How to use
 
-You only need to download the main.gd.
+Pick one between dump_as_separate_nodes.gd (creates a .tscn for each aseprite layer) and dump_as_single_node.gd (creates a single .tscn where each aseprite layer is a child of a Node2D).
 1. Create a new scene
 2. Add a Node
 3. Attach main.gd to the Node

@@ -44,6 +44,8 @@ func process_aseprite_file(_flag):
 
 	var editor_fs = EditorInterface.get_resource_filesystem()
 
+	var scn := PackedScene.new()
+	var root := Node2D.new()
 # collisions will be missing here.
 	for layer_name in layers:
 		out_splits[-1] = layer_name
@@ -73,13 +75,15 @@ func process_aseprite_file(_flag):
 		var animated_sprite := AnimatedSprite2D.new()
 		animated_sprite.sprite_frames = sprite_frames
 		animated_sprite.name = MAIN_NAME + '_' + layer_name
+		animated_sprite.texture_filter = TextureFilter.TEXTURE_FILTER_NEAREST
+		root.add_child(animated_sprite)
+		animated_sprite.set_owner(root)
 
-		var scn := PackedScene.new()
-		var ok = scn.pack(animated_sprite)
-		if ok == OK:
-			ok = ResourceSaver.save(scn, outpath + '/%s_%s.tscn' % [MAIN_NAME, layer_name])
-			if ok != OK:
-				push_error("ERROR SAVING SCENE TO DISK")
+	var ok = scn.pack(animated_sprite)
+	if ok == OK:
+		ok = ResourceSaver.save(scn, outpath + '/%s_%s.tscn' % [MAIN_NAME, layer_name])
+		if ok != OK:
+			push_error("ERROR SAVING SCENE TO DISK")
 
 	return
 
